@@ -1,11 +1,9 @@
 ﻿using OutlookAddIn;
-
 using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
 
@@ -14,15 +12,25 @@ namespace Outlook_SaveAttachment
     public partial class ThisAddIn
     {
         private Outlook.Items _items;
+        private Ribbon _ribbon;
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            Outlook.Application application = this.Application;
-            Outlook.NameSpace ns = application.Session;
-            Outlook.MAPIFolder inbox = ns.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
-            _items = inbox.Items;
+            try
+            {
+                Outlook.Application application = this.Application;
+                Outlook.NameSpace ns = application.Session;
+                Outlook.MAPIFolder inbox = ns.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
+                _items = inbox.Items;
 
-            _items.ItemAdd += new Outlook.ItemsEvents_ItemAddEventHandler(Items_ItemAdd);
+                _items.ItemAdd += new Outlook.ItemsEvents_ItemAddEventHandler(Items_ItemAdd);
+
+                _ribbon = new Ribbon();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during startup: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void Items_ItemAdd(object item)
